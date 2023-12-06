@@ -34,6 +34,10 @@ impl Todo {
         self.map.insert(key, map);
     }
 
+    fn delete(&mut self, key: &str) {
+        self.map.remove(key);
+    }
+
     fn save(self) -> Result<(), std::io::Error> {
         let f = std::fs::OpenOptions::new()
             .write(true)
@@ -148,6 +152,8 @@ fn main() {
 
     } else if action == "list" {
         todo.list_by_status(&item);
+    } else if action == "delete" {
+        todo.delete(&item);
     }
 }
 
@@ -201,5 +207,19 @@ mod tests {
         todo.insert("test2".to_string());
         todo.list();
         assert_eq!(todo.map.len(), 2);
+    }
+
+    #[test]
+    fn test_delete() {
+        let mut todo = super::Todo::new(Some("test_db.json")).unwrap();
+        todo.insert("test".to_string());
+        todo.insert("test2".to_string());
+        todo.insert("test3".to_string());
+        todo.delete("test3");
+        assert_eq!(todo.map.len(), 2);
+        assert!(todo.map.contains_key("test"));
+        assert!(todo.map.contains_key("test2"));
+        assert!(!todo.map.contains_key("test3"));
+
     }
 }
